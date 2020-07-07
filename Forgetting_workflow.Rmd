@@ -1,0 +1,1440 @@
+---
+title: "Short-term forgetting in sentence comprehension: Crosslinguistic evidence from verb-ﬁnal structures"
+documentclass : "apa6"
+output: html_document
+header-includes: |
+  \usepackage{gb4e}\noautomath
+---
+
+**This file contains the analysis for the paper [Short-term forgetting in sentence comprehension: Crosslinguistic evidence from verb-ﬁnal structures](https://www.tandfonline.com/doi/abs/10.1080/01690960903310587). Language and Cognitive Processes. 2010. The authors are Shravan Vasishth, Katja Suckow, Richard L. Lewis, and Sabine Kern.**
+
+**The current analysis was done by Himanshu Yadav (PhD student, University of Potsdam. [hyadav@uni-potsdam.de](mailto:hyadav@uni-potsdam.de). The results of this analysis may differ from the results reported in the paper.)**
+
+```{r loadPackages, include=FALSE, results='hide', echo=FALSE,message=FALSE, warning=FALSE}
+library(lme4)
+library(dplyr)
+library(reshape2)
+library(papaja)
+library(ggplot2)
+library(optimx)
+library(car)
+library(lattice)
+```
+
+## 1. Introduction
+
+In an offline accuracy rating study on English double center-embedding constructions, Gibson and Thomas (1999) found that grammatical construtions (e.g., 1a) were less acceptable than ungrammatical constructions (e.g., 1b) where a middle verb phrase (e.g., $\textit{was cleaning every week})$ was missing.
+
+(@GT99)
+
+(a) The apartment that the maid who the service had sent over was cleaning every week was well decorated. 
+
+(b) *The apartment that the maid who the service had sent over --- was well decorated
+
+Based on these results, Gibson and Thomas (1999) proposed that working-memory overload leads the comprehender to forget the prediction of the upcoming verb phrase (VP), which reduces working-memory load. This was called *VP-forgetting hypothesis*.
+
+In this document, I present the analysis of the experiments from the paper **Short-term forgetting in sentence comprehension: Crosslinguistic evidence from verb-ﬁnal structures**. The paper reports seven self-paced reading (SPR) and eyetracking experiments to investigate the effect of working-memory load in processing double center-embedding constructions in English and German. Working-memory load is manipulated by omitting a middle verb phrase (and also by similarity-based interference). 
+
+*VP-forgetting hypothesis* would predict faster processing times in the ungrammatical conditions where a verb-phrase is missing.
+
+## 2. Experiment 1
+
+Experiment 1 was an SPR study on English double center-embedding constructions. Consider example (2).
+
+(@GT99)
+
+(a) The carpenter who the craftsman that the peasant carried hurt $supervised_{_{V1}}$ the apprentice.
+
+(b) The carpenter who the pillar that the peasant carried hurt $supervised_{_{V1}}$ the apprentice.
+
+(c) *The carpenter who the craftsman that the peasant carried -- $supervised_{_{V1}}$ the apprentice.
+
+(d) *The carpenter who the pillar that the peasant carried -- $supervised_{_{V1}}$ the apprentice.
+
+***VP-forgetting hypothesis* predicts that Grammatical conditions would have slower processing times compared to ungrammatical consitions where a middle VP is missing.** In particular, a slowdown is expected at V1 and postV1 in condition 2-a and 2-b compared to condition 2-c and 2-d. 
+
+In addition, I also test the effect of interference. 2-a and 2-c are high-interference conditions and 2-b and 2-d are low-interference conditions. Because high-memory load in high-interference condition, *VP-forgetting hypothesis* would predict larger effect of grammaticality in high-interference condition -- such that difference in reading times between grammatical and ungrammatical condition is higher in high-interference condition compared to low-interference condition.  
+
+**Note that in the paper, the authors report the effect of grammaticality only.**
+
+### 2.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e1_en_spr_data.txt")
+head(data)
+colnames(data) <- c("subject","expt","item","condition","position","word","rt")
+data <- subset(data,expt=="gug")
+str(data)
+# Change the word positions from 0,1,2,.. to 1,2,3,..
+data$position <- as.numeric(data$position)+1
+
+# Consider RT from SPR is one of the measures
+data.m <- melt(data, id=c("subject","expt","item","condition","position","word"),measure="rt", variable.name='measure',na.rm=TRUE)
+
+# Code and label the region of interests (ROIs)
+
+## The painter who the film that the friend liked admired the poet.  
+##  1    2      3   4   5   6     7   8     9     10      11  12
+##    NP1      who    NP2  that    NP3     V3     V2      V1  postV1
+
+data.m$roi <- ifelse(data.m$position%in%c(1,2),'NP1',
+              ifelse(data.m$position==3,'who', 
+              ifelse(data.m$position%in%c(4,5),'NP2', 
+              ifelse(data.m$position==6,'that', 
+              ifelse(data.m$position%in%c(7,8),'NP3',
+              ifelse(data.m$position==9,'V3',
+              ifelse(data.m$position==10&data.m$condition%in%c('a','b'),'V2',
+              ifelse(data.m$position==10&data.m$condition%in%c('c','d'),'V1',
+              ifelse(data.m$position==11&data.m$condition%in%c('a','b'),'V1',
+              ifelse(data.m$position==11&data.m$condition%in%c('c','d'),'postV1',
+              ifelse(data.m$position==12&data.m$condition%in%c('a','b'),'postV1',
+              data.m$position)))))))))))
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data.m$gram <- ifelse(data.m$condition%in%c("a","b"),1,-1)
+data.m$intf <- ifelse(data.m$condition%in%c("a","c"),1,-1)
+str(data.m)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data.m)
+
+## data of subject 8 is duplicated. Let's remove this completely
+data.m <- subset(data.m,subject!=8)
+```
+
+```{r echo=FALSE}
+head(data.m)
+```
+
+### 2.2 Visualize the data
+
+#### 2.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(roi,gram) %>% summarise(Variable='Grammaticality',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.gram$roi <- factor(data.gram$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|roi%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&roi%in%c('V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+# Save plot
+```
+
+**The plot shows speed-up in ungrammatical conditions. This will be tested formally using a mixed-effect linear model**
+
+#### 2.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$roi <- factor(data.intf$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Mean reaction time")
+```
+
+#### 2.2.3 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 2.2.4 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~item)
+```
+
+### 2.3 Analysis with linear mixed-effect models
+
+As mentioned earlier, we are interested in reaction times at the V1 and postV1 region. Let's us first test the interaction between grammaticality and interference at the V1 region.
+
+#### 2.3.1 at V1: interaction effect (grammaticality x interference)
+
+We fit the following regression: *let i be the index for the subject and j be the index for items*
+
+\begin{equation}
+log(rt_{ij}) = (\beta_0+u_{0i}+w_{0j}) + (\beta_1+u_{1i}+w_{1j}) Gram_{ij} + (\beta_2+u_{2i}+w_{2j}) Intf_{ij} + (\beta_{3}+u_{3i}+w_{3j}) Gram_{ij}*Intf_{ij} + \epsilon_{ij}
+\end{equation}
+
+**Predictions**
+
+*Verb-forgetting hypothesis* would predict:
+
+(1) Main effect of grammaticality such that $\hat{\beta_1}$ is positive. 
+
+(2) Interaction effect of interference and grammaticality such that difference in reading times between grammatical and ungrammatical condition is larger in high-interference condition compared to low-interference condition. Positive sign is expected for the $\hat{\beta_3}$. 
+
+**Results**
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,roi=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.V1, control=lmerControl(optCtrl=list(maxfun=1e5)), REML = FALSE)
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**No effect of grammaticality at V1 region and no interaction effect**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+
+#### 2.3.2 at postV1: interaction effect (grammaticality x interference)
+
+Regression equation and predictions are same as for V1 region.
+
+$\textbf{Results:}$
+
+```{r message=FALSE, warning=FALSE}
+data.postV1 <- subset(data.m,roi=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')),REML = FALSE)
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+**There is a main effect of grammaticality at postV1 region, but no interaction effect.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+### 2.4 Summary of Experiment 1
+
+- Main effect of grammaticality at postV1 region (evidence for VP-forgetting hypothesis).
+
+- No effect of grammaticality at V1 region
+
+- No interaction effect between grammaticality and interference
+
+-------------------------------------------------------------
+
+## 3 Experiment 1a
+
+Items of Experiment 1 were slightly modified to prevent three-verb sequences. Consider example (3).
+
+(@GT99)
+
+(a) The carpenter who the craftsman that the peasant had carried to the bus stop had hurt yesterday $supervised_{_{V1}}$ the apprentice.
+
+(b) The carpenter who the pillar that the peasant had carried to the bus stop had hurt yesterday $supervised_{_{V1}}$ the apprentice.
+
+(c) *The carpenter who the craftsman that the peasant had carried to the bus stop -- $supervised_{_{V1}}$ the apprentice.
+
+(d) *The carpenter who the pillar that the peasant had carried to the bus stop -- $supervised_{_{V1}}$ the apprentice.
+
+
+### 3.1 Load the data of Experiment 1a
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e1a_en_spr_data.txt")
+head(data)
+colnames(data) <- c("subject","expt","item","condition","position","word","rt")
+data <- subset(data,expt=="gug")
+str(data)
+# Change the word positions from 0,1,2,.. to 1,2,3,..
+data$position <- as.numeric(data$position)+1
+
+# Consider RT from SPR is one of the measures
+data.m <- melt(data, id=c("subject","expt","item","condition","position","word"),measure="rt", variable.name='measure',na.rm=TRUE)
+
+# Code and label the region of interests (ROIs)
+
+## The carpenter who the craftsman that the peasant had carried to the bus-stop had hurt 
+##   1    2       3   4      5      6    7     8     9     10   11  12    13     14  15
+
+## yesterday supervised the apprentice.  
+##    16         17     18    19
+
+data.m$roi <- ifelse(data.m$position%in%c(1,2),'NP1',
+              ifelse(data.m$position==3,'who', 
+              ifelse(data.m$position%in%c(4,5),'NP2', 
+              ifelse(data.m$position==6,'that', 
+              ifelse(data.m$position%in%c(7,8),'NP3',
+              ifelse(data.m$position%in%c(9,10),'V3',
+              ifelse(data.m$position%in%c(14,15)&data.m$condition%in%c('a','b'),'V2',
+              ifelse(data.m$position==14&data.m$condition%in%c('c','d'),'V1',
+              ifelse(data.m$position==17&data.m$condition%in%c('a','b'),'V1',
+              ifelse(data.m$position==15&data.m$condition%in%c('c','d'),'postV1',
+              ifelse(data.m$position==18&data.m$condition%in%c('a','b'),'postV1',
+              data.m$position)))))))))))
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data.m$gram <- ifelse(data.m$condition%in%c("a","b"),1,-1)
+data.m$intf <- ifelse(data.m$condition%in%c("a","c"),1,-1)
+str(data.m)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data.m)
+```
+
+```{r echo=FALSE}
+head(data.m)
+```
+
+### 3.2 Visualize the data
+
+#### 3.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(roi,gram) %>% summarise(Variable='Grammaticality',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.gram$roi <- factor(data.gram$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|roi%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&roi%in%c('V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+# Save plot
+```
+
+#### 3.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$roi <- factor(data.intf$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Mean reaction time")
+```
+
+
+### 3.3 Analysis with linear mixed-effect models
+
+The model and predictions are same as for Experiment 1 (see section 2.3).
+
+#### 3.3.1 at V1: interaction effect (grammaticality x interference)
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,roi=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.V1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**Main effect of grammaticality at V1 region**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+
+#### 3.3.2 at postV1: interaction effect (grammaticality x interference)
+
+```{r message=FALSE, warning=FALSE}
+data.postV1 <- subset(data.m,roi=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+**There is a main effect of grammaticality at postV1 region.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+### 3.4 Summary of Experiment 1a
+
+- Main effect of grammaticality at both V1 and postV1 region.
+
+----------------------------------------------------------------------
+
+## 4. Experiment 2
+
+Experiment 2 was an eye-tracking study on English double center-embedding constructions. The items and predictions were same as in Experiment 1 (see section 2 for sample item and predictions).
+
+### 4.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e2_en_et_data.txt",header = T)
+head(data)
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data$gram <- ifelse(data$condition%in%c("a","b"),1,-1)
+data$intf <- ifelse(data$condition%in%c("a","c"),1,-1)
+data <- subset(data,item!=11)
+# Code and label the region of interests (ROIs)
+
+## The painter who the film that the friend liked admired the poet.  
+##     1        2      3     4      5         9     10     11  12
+##    NP1      who    NP2   that   NP3       V3     V2      V1  postV1
+
+data$region <- ifelse(data$roi==1,'NP1',
+              ifelse(data$roi==2,'who', 
+              ifelse(data$roi==3,'NP2', 
+              ifelse(data$roi==4,'that', 
+              ifelse(data$roi==5,'NP3',
+              ifelse(data$roi==9,'V3',
+              ifelse(data$roi==10&data$condition%in%c('a','b'),'V2',
+              ifelse(data$roi==10&data$condition%in%c('c','d'),'V1',
+              ifelse(data$roi==11&data$condition%in%c('a','b'),'V1',
+              ifelse(data$roi==11&data$condition%in%c('c','d'),'postV1',
+              ifelse(data$roi==12&data$condition%in%c('a','b'),'postV1',
+              data$roi)))))))))))
+
+str(data)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data)
+```
+
+```{r }
+head(data)
+#Convert this into a long table with RRT as variable
+data.m <- melt(data, id=c("subject","condition","item","accuracy","roi","gram","intf","region"),measure="RRT", variable.name="measure", na.rm=TRUE)
+data.m <- subset(data.m,value>0)
+head(data.m)
+```
+
+### 4.2 Visualize the data
+
+#### 4.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(region,gram) %>% summarise(Variable='Grammaticality',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(region,intf) %>% summarise(Variable='Interference',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.gram$region <- factor(data.gram$region,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&region%in%c('NP3','V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Re-reading time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|region%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&region%in%c('V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Re-reading time")
+
+# Save plot
+```
+
+#### 4.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(region,intf) %>% summarise(Variable='Interference',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$region <- factor(data.intf$region,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&region%in%c('NP3','V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Re-reading time")
+```
+
+#### 4.2.3 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 4.2.4 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~item)
+```
+
+### 4.3 Analysis with linear mixed-effect models
+
+
+#### 4.3.1 at V1: interaction effect (grammaticality x interference)
+
+The model and the predictions are same as in Experiment 1 (see section 2.3.1).
+
+**However, re-reading time (RRT) has been used as dependent variable here (see the paper for more details).**
+
+**Results**
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,region=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.V1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**There is a main effect of grammaticality at V1 region.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+
+#### 4.3.2 at postV1: interaction effect (grammaticality x interference)
+
+$\textbf{Results:}$
+
+```{r warning=FALSE,message=FALSE}
+data.postV1 <- subset(data.m,region=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+**There is a main effect of grammaticality at postV1 region**
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+
+### 4.4 Summary of Experiment 2
+
+- Main effect of grammaticality on re-reading times at both V1 and postV1 region (evidence for VP-forgetting hypothesis).
+
+- No interaction effect between grammaticality and interference.
+
+--------------------------------------------------------------------------
+
+## 5. Experiment 3
+
+Experiment 3 was an SPR study on German double center-embedding constructions. Consider example (3).
+
+(@GT99)
+
+(a) Der Anwalt, den der Zeuge, den der Spion betrachtete, schnitt, $überzeugte_{_{V1}}$ den Richter.
+
+(b) Der Anwalt, den der Säbel, den der Spion betrachtete, schnitt, $überzeugte_{_{V1}}$ den Richter.
+
+(c) Der Anwalt, den der Zeuge, den der Spion betrachtete, -- $überzeugte_{_{V1}}$ den Richter.
+
+(d) Der Anwalt, den der Säbel, den der Spion betrachtete, -- $überzeugte_{_{V1}}$ den Richter.
+
+***VP-forgetting hypothesis* predicts that Grammatical conditions would have slower processing times compared to ungrammatical consitions where a middle VP is missing.** In particular, a slowdown is expected at V1 and postV1 in condition 3-a and 3-b compared to condition 3-c and 3-d. 
+
+In addition, I also test the effect of interference. 3-a and 3-c are high-interference conditions and 3-b and 3-d are low-interference conditions. Because high-memory load in high-interference condition, *VP-forgetting hypothesis* would predict larger effect of grammaticality in high-interference condition -- such that difference in reading times between grammatical and ungrammatical condition is higher in high-interference condition compared to low-interference condition.  
+
+**Note that in the paper, the authors test the effect of grammaticality only.**
+
+### 5.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e3_de_spr_data.txt")
+head(data)
+colnames(data) <- c("subject","expt","item","condition","position","word","rt","similariy","grammaticality")
+str(data)
+
+# Consider RT from SPR is one of the measures
+data.m <- melt(data, id=c("subject","expt","item","condition","position","word"),measure="rt", variable.name='measure',na.rm=TRUE)
+data.m <- subset(data.m,value>0)
+str(data.m)
+# Code and label the region of interests (ROIs)
+
+## Der Anwalt, den der Zeuge, den   der Spion betrachtete, schnitt, überzeugte den Richter.
+##     1        2      3       4       5           6          7         8          9  
+##    NP1      who    NP2     that    NP3          V3         V2        V1      postV1
+
+data.m$roi <- ifelse(data.m$position==1,'NP1',
+              ifelse(data.m$position==2,'who', 
+              ifelse(data.m$position==3,'NP2', 
+              ifelse(data.m$position==4,'that', 
+              ifelse(data.m$position==5,'NP3',
+              ifelse(data.m$position==6,'V3',
+              ifelse(data.m$position==7&data.m$condition%in%c('a','b'),'V2',
+              ifelse(data.m$position==7&data.m$condition%in%c('c','d'),'V1',
+              ifelse(data.m$position==8&data.m$condition%in%c('a','b'),'V1',
+              ifelse(data.m$position==8&data.m$condition%in%c('c','d'),'postV1',
+              ifelse(data.m$position==9&data.m$condition%in%c('a','b'),'postV1',
+              data.m$position)))))))))))
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data.m$gram <- ifelse(data.m$condition%in%c("a","b"),1,-1)
+data.m$intf <- ifelse(data.m$condition%in%c("a","c"),1,-1)
+str(data.m)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data.m)
+```
+
+```{r echo=FALSE}
+head(data.m)
+```
+
+### 5.2 Visualize the data
+
+#### 5.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(roi,gram) %>% summarise(Variable='Grammaticality',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.gram$roi <- factor(data.gram$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|roi%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&roi%in%c('V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+# Save plot
+```
+
+**The plot shows slow-down in ungrammatical conditions. This will be tested formally using a mixed-effect linear model**
+
+#### 5.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$roi <- factor(data.intf$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Mean reaction time")
+```
+
+#### 5.2.3 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 5.2.3 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~item)
+```
+
+### 5.3 Analysis with linear mixed-effect models
+
+#### 5.3.1 at V1: interaction effect (grammaticality x interference)
+
+The model and the predictions are same as in experiment 1 (see section 2.3.1).
+
+**Results**
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,roi=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.V1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**VP-forgetting hypothesis predicted positive sign for the effect of grammaticality. But we get a negative sign here, suggesting that grammatical conditions are faster than ungrammatical conditions where a middle VP is missing.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+#### 5.3.2 at postV1: interaction effect (grammaticality x interference)
+
+$\textbf{Results:}$
+
+```{r warning=FALSE,message=FALSE}
+data.postV1 <- subset(data.m,roi=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r modelE1.3_coeff}
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+2. Residuals
+
+```{r modelE1.3_resid}
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r modelE1.3_variance}
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+### 5.4 Summary of Experiment 3
+
+- Main effect of grammaticality at V1 and postV1 region such that grammatical conditions have faster processing times than ungrammatical conditions, where a VP was missing (counter-evidence for VP-forgetting hypothesis i.e.,  German speakers apparently tend to not forget the predicted middle verb-phrase node).
+
+- No interaction effect between grammaticality and interference
+
+-------------------------------------------------------------------------
+
+## 6. Experiment 4
+
+Experiment 4 was an eye-tracking study on German double center-embedding constructions. The items and predictions were same as in Experiment 3 (see section 4 for sample item and predictions).
+
+### 6.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+load("Data/e4_de_et_data.Rda")
+head(d.rs)
+data <- d.rs
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data$gram <- ifelse(data$condition%in%c("a","b"),1,-1)
+data$intf <- ifelse(data$condition%in%c("a","c"),1,-1)
+data <- subset(data,times=="RRT")
+data <- subset(data,value>0)
+data$value <- data$value/1000
+
+# Code and label the region of interests (ROIs)
+## Der Anwalt, den der Zeuge, den   der Spion betrachtete, schnitt, überzeugte den Richter. 
+##     1        2      3      4        5           9        10          11       12
+##    NP1      who    NP2    that     NP3         V3        V2          V1      postV1
+
+data$region <- ifelse(data$roi==1,'NP1',
+              ifelse(data$roi==2,'who', 
+              ifelse(data$roi==3,'NP2', 
+              ifelse(data$roi==4,'that', 
+              ifelse(data$roi==5,'NP3',
+              ifelse(data$roi==9,'V3',
+              ifelse(data$roi==10&data$condition%in%c('a','b'),'V2',
+              ifelse(data$roi==10&data$condition%in%c('c','d'),'V1',
+              ifelse(data$roi==11&data$condition%in%c('a','b'),'V1',
+              ifelse(data$roi==11&data$condition%in%c('c','d'),'postV1',
+              ifelse(data$roi==12&data$condition%in%c('a','b'),'postV1',
+              data$roi)))))))))))
+
+str(data)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data)
+```
+
+```{r loaded_data,echo=FALSE}
+data.m <- data
+head(data.m)
+```
+
+### 6.2 Visualize the data
+
+#### 6.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(region,gram) %>% summarise(Variable='Grammaticality',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(region,intf) %>% summarise(Variable='Interference',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.gram$region <- factor(data.gram$region,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&region%in%c('NP3','V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Re-reading time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|region%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&region%in%c('V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Re-reading time")
+
+# Save plot
+```
+
+#### 6.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(region,intf) %>% summarise(Variable='Interference',mean.RRT=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$region <- factor(data.intf$region,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&region%in%c('NP3','V3','V2','V1','postV1')),aes(region,mean.RRT,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.RRT-CI, ymax=mean.RRT+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Re-reading time")
+```
+
+#### 6.2.3 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 6.2.4 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~itemnum)
+```
+
+### 6.3 Analysis with linear mixed-effect models
+
+#### 6.3.1 at V1: interaction effect (grammaticality x interference)
+
+The model and the predictions are same as in Experiment 3 (see section 4.3.1).
+
+**However, re-reading time (RRT) has been used as dependent variable here (see the paper for more details).**
+
+
+**Results**
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,region=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|itemnum),data=data.V1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**There is a main effect of grammaticality at V1 region.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+
+#### 6.3.2 at postV1: interaction effect (grammaticality x interference)
+
+$\textbf{Results:}$
+
+```{r warning=FALSE,message=FALSE}
+data.postV1 <- subset(data.m,region=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|itemnum),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+
+### 6.4 Summary of Experiment 4
+
+- Main effect of grammaticality at V1 region such that grammatical conditions have faster processing times than ungrammatical conditions, where a VP was missing (counter-evidence for VP-forgetting hypothesis i.e.,  German speakers apparently tend to not forget the predicted middle verb-phrase node).
+
+- No effect of grammaticality at postV1 region.
+
+-------------------------------------------------------------------------
+
+## 7. Experiment 5
+
+Experiment 5 was an SPR study on English double center-embedding constructions.  The stimuli were same as Experiment 1 with only difference that commas were added to the relative clauses. Consider example (4).
+
+(@GT99)
+
+(a) The carpenter, who the craftsman, that the peasant carried, hurt, $supervised_{_{V1}}$ the apprentice.
+
+(b) The carpenter, who the pillar, that the peasant carried, hurt, $supervised_{_{V1}}$ the apprentice.
+
+(c) *The carpenter, who the craftsman, that the peasant carried, -- $supervised_{_{V1}}$ the apprentice.
+
+(d) *The carpenter, who the pillar, that the peasant carried, -- $supervised_{_{V1}}$ the apprentice.
+
+The predictions were same as in Experiment 1 (see section 2).
+
+### 7.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e5_en_spr_data.txt")
+colnames(data) <- c("subject","expt","item","condition","position","word","response","rt")
+data <- subset(data,expt=="gug")
+str(data)
+head(data)
+# Change the word positions from 0,1,2,.. to 1,2,3,..
+data$position <- as.numeric(as.character(data$position))+1
+head(data)
+data <- data[complete.cases(data),]
+
+# Consider RT from SPR is one of the measures
+data.m <- melt(data, id=c("subject","expt","item","condition","position","word"),measure="rt", variable.name='measure',na.rm=TRUE)
+
+# Code and label the region of interests (ROIs)
+
+## All other items
+## The carpenter, who the craftsman, that the peasant carried, hurt, supervised the apprentice.
+##  1     2       3    4     5        6    7    8       9       10      11       12    13
+##    NP1         who     NP2       that     NP3        V3      V2      V1         postV1
+
+## For items 3,6,10,11,14
+## The defence, who the prosecutor, that  the spy  looked at, surprised, convinced the judge.
+##  1     2       3    4     5        6    7   8    9     10      11       12       13  14
+##    NP1         who     NP2       that    NP3        V3         V2       V1        postV1
+
+data1 <- subset(data.m,item%in%c(3,6,10,11,14))
+data2 <- subset(data.m,item%in%c(1:2,4:5,7:9,12:13,15:16))
+data1$roi <- ifelse(data1$position%in%c(1,2),'NP1',
+              ifelse(data1$position==3,'who', 
+              ifelse(data1$position%in%c(4,5),'NP2', 
+              ifelse(data1$position==6,'that', 
+              ifelse(data1$position%in%c(7,8),'NP3',
+              ifelse(data1$position%in%c(9,10),'V3',
+              ifelse(data1$position==11&data1$condition%in%c('a','b'),'V2',
+              ifelse(data1$position==11&data1$condition%in%c('c','d'),'V1',
+              ifelse(data1$position==12&data1$condition%in%c('a','b'),'V1',
+              ifelse(data1$position==12&data1$condition%in%c('c','d'),'postV1',
+              ifelse(data1$position==13&data1$condition%in%c('a','b'),'postV1',
+              data1$position)))))))))))
+
+data2$roi <- ifelse(data2$position%in%c(1,2),'NP1',
+              ifelse(data2$position==3,'who', 
+              ifelse(data2$position%in%c(4,5),'NP2', 
+              ifelse(data2$position==6,'that', 
+              ifelse(data2$position%in%c(7,8),'NP3',
+              ifelse(data2$position==9,'V3',
+              ifelse(data2$position==10&data2$condition%in%c('a','b'),'V2',
+              ifelse(data2$position==10&data2$condition%in%c('c','d'),'V1',
+              ifelse(data2$position==11&data2$condition%in%c('a','b'),'V1',
+              ifelse(data2$position==11&data2$condition%in%c('c','d'),'postV1',
+              ifelse(data2$position==12&data2$condition%in%c('a','b'),'postV1',
+              data2$position)))))))))))
+
+data.m <- rbind(data1,data2)
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+# High interference = 1, Low interference = -1
+data.m$gram <- ifelse(data.m$condition%in%c("a","b"),1,-1)
+data.m$intf <- ifelse(data.m$condition%in%c("a","c"),1,-1)
+str(data.m)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data.m)
+```
+
+```{r echo=FALSE}
+head(data.m)
+```
+
+### 7.2 Visualize the data
+
+#### 7.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(roi,gram) %>% summarise(Variable='Grammaticality',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+library(ggplot2)
+data.gram$roi <- factor(data.gram$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|roi%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&roi%in%c('V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+# Save plot
+```
+
+#### 7.2.2 Mean and Confidence interval in high vs. low interference conditions
+
+```{r echo=FALSE}
+data.intf <- data.m %>% group_by(roi,intf) %>% summarise(Variable='Interference',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.intf <- as.data.frame(data.intf)
+colnames(data.intf)[2] <- 'Condition'
+data.intf$Condition <- ifelse(data.intf$Condition==1,'High interference','Low interference')
+
+data.intf$roi <- factor(data.intf$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1','12','13','14'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.intf,Variable=='Interference'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line() + theme_bw()+ ggtitle("Mean and CIs in high and low interference condition") + xlab("Region of interest") + ylab("Mean reaction time")
+```
+
+#### 7.2.3 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 7.2.4 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~item)
+```
+
+### 7.3 Analysis with linear mixed-effect models
+
+#### 7.3.1 at V1: interaction effect (grammaticality x interference)
+
+The model and the predictions are same as in Experiment 1 (see section 2.3.1).
+
+**Results**
+
+```{r warning=FALSE,message=FALSE}
+data.V1 <- subset(data.m,roi=='V1')
+mod.e1.1 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.V1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.1,'models/E1_V1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.1)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at V1 region"
+  , escape = FALSE
+)
+```
+
+**Main effect of grammaticality at V1 region**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.1))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.1,condVar=TRUE)))
+```
+
+
+#### 7.3.2 at postV1: interaction effect (grammaticality x interference)
+
+$\textbf{Results:}$
+
+```{r message=FALSE, warning=FALSE}
+data.postV1 <- subset(data.m,roi=='postV1')
+mod.e1.3 <- lmer(log(value)~gram*intf+(1+gram*intf|subject)+(1+gram*intf|item),data=data.postV1, control=lmerControl(optimizer="optimx",optCtrl=list(method='nlminb')))
+#save(mod.e1.3,'models/E1_postV1_gramxintf.Rda')
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.3)$coefficients)
+  , caption = "Estimated effect of grammaticality and interference at post V1 region"
+  , escape = FALSE
+)
+```
+
+**Main effect of grammaticality at postV1 region.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.3))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.3,condVar=TRUE)))
+```
+
+### 7.4 Summary of Experiment 5
+
+- Main effect of grammaticality at both V1 and postV1 region (evidence for VP-forgetting hypothesis).
+
+- No interaction effect of grammaticality and interference
+
+----------------------------------------------------------------------
+
+## 8. Experiment 6
+
+Experiment 6 was an SPR study on English double center-embedding constructions.  The items were same as experiment 5 with only difference that the relative pronoun was always *who*. Consider example (5).
+
+(@GT99)
+
+(a) The carpenter, who the craftsman, who the peasant carried, hurt, $supervised_{_{V1}}$ the apprentice.
+
+(b) *The carpenter, who the craftsman, who the peasant carried, -- $supervised_{_{V1}}$ the apprentice.
+
+***VP-forgetting hypothesis* predicts that Grammatical condition would have slower processing times compared to ungrammatical consition where a middle VP is missing.** In particular, a slowdown is expected at V1 and postV1 in condition a compared to condition b.
+
+### 8.1 Load the data
+
+```{r include=FALSE, results='hide', echo=FALSE}
+# Load the data file
+data <- read.table("Data/e6_en_spr_data.txt")
+colnames(data) <- c("run","comma","subject","subj","expt","item","condition","position","word","correct","rt")
+data <- subset(data,expt=="gug")
+str(data)
+head(data)
+# Change the word positions from 0,1,2,.. to 1,2,3,..
+data$position <- as.numeric(as.character(data$position))+1
+head(data)
+data <- data[complete.cases(data),]
+
+# Consider RT from SPR is one of the measures
+data.m <- melt(data, id=c("subject","comma","expt","item","condition","position","word"),measure="rt", variable.name='measure',na.rm=TRUE)
+
+# Code and label the region of interests (ROIs)
+## The carpenter, who the craftsman, who the peasant carried, hurt, supervised the apprentice.
+##    NP1         who1     NP2       who2     NP3        V3      V2      V1         postV1
+
+data.m$roi <- ifelse(data.m$position==1,'NP1',
+              ifelse(data.m$position==2,'who1', 
+              ifelse(data.m$position==3,'NP2', 
+              ifelse(data.m$position==4,'who2', 
+              ifelse(data.m$position==5,'NP3',
+              ifelse(data.m$position==6,'V3',
+              ifelse(data.m$position==7&data.m$condition%in%c('a','c'),'V2',
+              ifelse(data.m$position==7&data.m$condition%in%c('b','d'),'V1',
+              ifelse(data.m$position==8&data.m$condition%in%c('a','c'),'V1',
+              ifelse(data.m$position==8&data.m$condition%in%c('b','d'),'postV1',
+              ifelse(data.m$position==9&data.m$condition%in%c('a','c'),'postV1',
+              data.m$position)))))))))))
+
+# Conditions with sum contrast
+# Grammatical = 1, Ungrammatical = -1
+data.m$gram <- ifelse(data.m$condition%in%c('a','c'),1,-1)
+
+# Check whether the design is latin-square
+#xtabs(~subject+condition,data.m)
+```
+
+```{r echo=FALSE}
+data.m <- subset(data.m,comma=='nocomma')
+head(data.m)
+```
+
+### 8.2 Visualize the data
+
+#### 8.2.1 Mean and Confidence interval in grammatical vs. Ungrammatical conditions
+
+```{r echo=FALSE}
+# Mean and CI for plotting
+data.gram <- data.m %>% group_by(roi,gram) %>% summarise(Variable='Grammaticality',mean.rt=mean(value),CI=1.96*(sd(value)/sqrt(n())))
+data.gram <- as.data.frame(data.gram)
+colnames(data.gram)[2] <- 'Condition'
+data.gram$Condition <- ifelse(data.gram$Condition==1,'Grammatical','Ungrammatical')
+
+data.gram$roi <- factor(data.gram$roi,levels=c('NP1','who','NP2','that','NP3','V3','V2','V1','postV1'))
+pd <- position_dodge(0.1)
+baseline <- ggplot(subset(data.gram,Variable=='Grammaticality'&roi%in%c('NP3','V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw() + ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+## Same figure as in the paper
+data.gram.crit <- subset(data.gram,Condition!='Ungrammatical'|roi%in%c('V1','postV1'))
+baseline <- ggplot(subset(data.gram.crit,Variable=='Grammaticality'&roi%in%c('V3','V2','V1','postV1')),aes(roi,mean.rt,group=Condition,colour=Condition))
+baseline+geom_errorbar(aes(ymin=mean.rt-CI, ymax=mean.rt+CI), width=.1)+geom_point()+geom_line()+ theme_bw()+ ggtitle("Mean and CIs in grammatical and ungrammatical condition") + xlab("Region of interest") + ylab("Mean reaction time")
+
+# Save plot
+```
+
+#### 8.2.2 Visualize by-subject data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~subject)
+```
+
+#### 8.2.3 Visualize by-item data
+
+```{r echo=FALSE}
+baseline <- ggplot(data.m,aes(x=condition,y=value))
+baseline+geom_point()+facet_wrap(~item)
+```
+
+### 8.3 Analysis with linear mixed-effect models
+
+#### 8.3.1 at V1: effect of grammaticality
+
+$\textbf{Results:}$
+
+```{r }
+data.V1 <- subset(data.m,roi=='V1')
+mod.e1.2 <- lmer(log(value)~gram+(1+gram|subject)+(1+gram|item),data=subset(data.V1))
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.2)$coefficients)
+  , caption = "Estimated effect of grammaticality at V1 region"
+  , escape = FALSE
+)
+```
+
+**No effect of grammaticality at V1**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.2))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.2,condVar=TRUE)))
+```
+
+#### 8.3.2 at postV1: effect of grammaticality
+
+$\textbf{Results:}$
+
+```{r }
+data.postV1 <- subset(data.m,roi=='postV1')
+mod.e1.4 <- lmer(log(value)~gram+(1+gram|subject)+(1+gram|item),data=subset(data.postV1))
+```
+
+1. Fixed effect estimates
+
+```{r }
+apa_table(
+  as.data.frame(summary(mod.e1.4)$coefficients)
+  , caption = "Estimated effect of grammaticality at post V1 region"
+  , escape = FALSE
+)
+```
+
+**No effect of grammaticality at postV1.**
+
+2. Residuals
+
+```{r }
+# Let's check the residuals
+qqPlot(fitted(mod.e1.4))
+```
+
+3. Participant-level differences
+
+```{r }
+print(dotplot(ranef(mod.e1.4,condVar=TRUE)))
+```
+
