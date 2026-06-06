@@ -1,0 +1,78 @@
+gisbert/064/1/Vielleicht hat die Ballerina aus Paris und der Organisator aus Orleans die Schauspielerin vorgeschlagen./Hat der Organisator die Schauspielerin vorgeschlagen?/1/
+filler/149/1/Nach dem Streit ignoriert der Gatte seine Frau./Wird die Frau nach dem Streit ignoriert?/1/
+filler/131/1/Der Verteidiger beschimpft ununterbrochen den Torwart./Wurde jemand beschimpft?/1/
+gisbert/075/1/Vielleicht hat die Person aus Jena und den Fremdling aus Mainz die Fahnderin verkannt./Hat den Fremdling die Fahnderin verkannt?/1/
+filler/164/1/Auf dem Schreibtisch verbreitet der Student Chaos./Ist der Schreibtisch aufger�umt?/0/
+gisbert/128/1/Vielleicht hat die Mechanikerin aus Heidelberg und der Zimmermann aus Frankfurt die Verwalterin bestochen./Hat der Zimmermann die Verwalterin bestochen?/1/
+filler/160/1/Aufgrund der Vorhersage erkennt der Meteorologe die Gefahr./Wird die Gefahr zu sp�t erkannt?/0/
+filler/169/1/Im Alter von neun Jahren gibt Hugo sein erstes Konzert./Besuchte Hugo mit neun Jahren sein erstes Konzert?/0/
+filler/170/1/In zehn Minuten wird gegessen./Wird bald gegessen?/1/
+gug/048/1/Der T�nzer, den der Schuh, den der Zuschauer bewunderte, beobachtete den Einlasser./Hat der Zuschauer den Schuh bewundert?/1/
+filler/143/1/Der Schausteller reist monatlich in eine andere Stadt./Erobert der Schausteller die St�dte?/0/
+filler/146/1/Mit der Kneifzange �ffnet der Mechaniker die T�r./Wird die T�r ge�ffnet?/1/
+gisbert/096/1/Vielleicht hat die Professorin aus Dortmund und der Wissenschaftler aus Magdeburg den Probanden gemieden./Hat die Professorin der Proband gemieden?/0/
+filler/138/1/Der Bettler schnorrt best�ndig Zigaretten./Kauft der Bettler Zigaretten?/0/
+gug/011/1/Der Br�utigam, den der Schwiegervater, den der Musiker trug, begr��te den Pfarrer./Hat der Schwiegervater den Pfarrer begr��t?/0/
+filler/139/1/Der Bibliothekar stellt beh�big das Buch ins Regal./Nimmt jemand ein Buch aus dem Regal?/0/
+gisbert/070/1/Vielleicht haben die Lehrerin aus Gera und der Lehrer aus Erfurt die Sch�lerinnen geplagt./Hat der Lehrer die Sch�lerinnen geplagt?/1/
+filler/140/1/Der Freizeitsportler joggt regelm��ig eine Stunde im Park./L�uft jemand durch den Wald/0/
+filler/136/1/Der B�rohengst bew�ltigt z�gig den Aktenstapel auf seinem Schreibtisch./Wird der Aktenstapel vollst�ndig abgearbeitet?/1/
+gug/016/1/Der Bruder, den der Schmuck, den der Bauer fand, hasste den Onkel./Hat der Bauer den Bruder gefunden?/0/
+filler/156/1/Dem Besucher schmeckt das Essen, weil es ausgezeichnet ist./Ist das Essen schmackhaft?/1/
+gisbert/118/1/Vielleicht haben die Fris�rin aus Potsdam und der Maskenbildner aus Moskau die Kundinnen hergerichtet./Haben den Maskenbildner die Kundinnen hergerichtet?/0/
+filler/152/1/W�hrend der Party tanzen alle vergn�gt zu Rockmusik./Wird w�hrend der Party getanzt?/1/
+filler/142/1/Der Fahrradverleiher stellt t�glich ein Schild auf den B�rgersteig./H�ngt der Fahrradverleiher ein Schild an die T�r?/0/
+filler/151/1/Seit der Trennung liebt der Charmeur das Leben./Ist der Charmeur ein Mensch den das Leben freut?/1/
+gisbert/107/1/Vielleicht hat die T�nzerin aus Jamaika und den S�nger aus Ghana die Managerin engagiert./Hat der S�nger die Managerin engagiert?/0/
+filler/168/1/Dem Radfahrer weicht der Autofahrer aus, weil er wachsam ist./Muss der Radfahrer ausweichen?/0/
+gug/022/1/Der Einbrecher, den der Stein, den der Mann besch�tzte, bezauberte, beschuldigte den Komplizen./Hat der Stein den Mann bezaubert?/0/
+filler/165/1/Auf dem Bildschirm sieht der Informatiker die Tabelle./�bersieht der Informatiker die Tabelle?/0/
+gisbert/113/1/Vielleicht haben die Rentnerin aus Buch und den Bauarbeiter aus Rudow die Vermieterinnen befreit./Haben den Bauarbeiter die Vermieterinnen befreit?/1/
+filler/153/1/Dem M�nch missf�llt das Verhalten, weil es unversch�mt ist./Ist das Verhalten unversch�mt?/1/
+gug/038/1/Der Pianist, den der Ball, den der Hausmeister sah, traf, ersetzte den Violinisten./Hat der Ball den Pianist getroffen?/1/
+filler/132/1/Der Nachhilfelehrer erkl�rt verst�ndlich die Hausaufgaben./Kann der Nachhilfelehrer gut erkl�ren?/1/
+filler/173/1/Mit vierzehn Jahren lernt Johannes Franz�sisch./Lernt Johannes Spanisch?/0/
+filler/171/1/Gegen neun Uhr wird es dunkel./Ist es nach neun Uhr noch hell?/0/
+filler/172/1/Nach acht Uhr haben die L�den geschlossen./Haben die L�den bis acht Uhr ge�ffnet?/1/
+gisbert/065/1/Vielleicht haben die Weberin aus Stockholm und den Masseur aus M�nster die Schwestern erkannt./Haben den Masseur die Schwestern erkannt?/1/
+filler/148/1/W�hrend der Spielzeit singt der Bariton Arien./Singt der Bariton die Arien?/1/
+gisbert/081/1/Vielleicht haben die Haush�lterin aus Rostock und den Arbeiter aus Wittstock die Besitzerinnen gescholten./Hat die Haush�lterin die Besitzerinnen gescholten?/0/
+filler/133/1/Der Filmproduzent dreht j�hrlich einen neuen Film./Wird jedes Jahr ein Film produziert?/1/
+gug/027/1/Der Neurotiker, den der Exzentriker, den der Psychiater bezahlte, versetzte den Berater./Hat der Neurotiker den Berater versetzt?/1/
+filler/137/1/Der Passant wirft schwungvoll den Joghurtbecher in den Abfalleimer./Wirft der Passant den Abfall auf die Stra�e?/0/
+gisbert/091/1/Vielleicht hat die B�ckerin aus Heidelberg und den Fleischer aus Bremen die K�uferin belogen./Hat der Fleischer die K�uferin belogen?/0/
+filler/130/1/Der Fotograf macht rechtzeitig den Schnappschuss./Macht ein Fotograf den Schnappschuss?/1/
+filler/161/1/Bei dem Wirbelsturm verliert das Haus die Dachziegel./Bleibt das Dach durch den Sturm unbesch�digt?/0/
+gisbert/102/1/Vielleicht haben die Designerin aus London und der Maskenbildner aus Birmingham die Darstellerinnen gestylt./Haben den Maskenbildner die Darstellerinnen gestylt?/0/
+filler/167/1/Dem Studenten gelingt das Experiment, weil es gut durchdacht ist./Scheitert das gut durchdachte Experiment?/0/
+gisbert/054/1/Vielleicht haben die Beifahrerin aus Cottbus und der Kamerad aus L�bben die Taxifahrerinnen gesucht./Hat die Beifahrerin die Taxifahrerinnen gesucht?/1/
+filler/147/1/Am Strand erscheint dem Badenden eine Meerjungfrau./Hat der Badende eine Erscheinung?/1/
+gug/033/1/Der Banker, den der Kreditgeber, den der Kunde mochte, nervte, bestahl den Vermieter./Hat der Kunde den Kreditgeber gemocht?/1/
+filler/129/1/Der ABC-Sch�tze erledigt rasch die Hausaufgaben./Wurden die Hausaufgaben gemacht?/1/
+gisbert/080/1/Vielleicht hat die Bewerberin aus Friedrichshain und der Bewerber aus Kreuzberg den Vorsitzenden gefragt./Hat der Bewerber den Vorsitzenden gefragt?/1/
+filler/163/1/Nach der Feier trinkt der Skandaljournalist einen Schnaps./Wird vor der Feier Schnaps getrunken?/0/
+gug/006/1/Der Beamte, den der Tisch, den der Besucher verga�, st�tzte, ver�rgerte den Nachbarn./Hat der Tisch den Besucher gest�tzt?/0/
+filler/135/1/Der Milchmann liefert jeden Tag p�nktlich die Milch vor die Haust�r./Ist der Milchmann jeden Tag p�nktlich?/1/
+filler/166/1/Dem Genie f�llt eine L�sung ein, weil er lange nachgedacht hat./F�llt dem Genie schnell eine L�sung ein?/0/
+gug/001/1/Der Anwalt, den der Zeuge, den der Spion betrachtete, schnitt, �berzeugte den Richter./Hat der Zeuge den Spion betrachtet?/0/
+filler/141/1/Der Mitbewohner bringt geduldig jede Woche den M�ll raus./Wird der M�ll t�glich entsorgt/0/
+gug/017/1/Der Zauberer, den der Akrobat, den der Zuschauer beschrieb, �rgerte, besuchte den Zirkusdirektor./Hat der Akrobat den Zuschauer beschrieben?/0/
+filler/145/1/In Frankreich essen die Leute Austern./Essen die Franzosen Austern?/1/
+gisbert/112/1/Vielleicht hat die Malerin aus Amsterdam und der K�nstler aus Rom die Interessentin vergessen./Hat den K�nstler die Interessentin vergessen?/0/
+filler/150/1/W�hrend der Steinzeit fra�en die Dinosaurier Artgenossen./Waren die Dinosaurier Fleischfresser?/1/
+gug/032/1/Der Arbeiter, den der Eimer, den der Vorarbeiter verga�, beschimpfte den Passanten./Hat der Vorarbeiter den Eimer vergessen?/1/
+filler/144/1/Der Pate bedenkt oft das Patenkind mit einem gro�fz�gigen Geschenk./Wird das Patenkind selten beschenkt?/0/
+filler/159/1/In der K�che sch�lt der Hausmann die Kartoffeln./Werden Karotten gesch�lt?/0/
+filler/174/1/Vorgestern hat es gest�rmt./War vorgestern schlechtes Wetter?/1/
+gisbert/059/1/Vielleicht hat die Liebhaberin aus Schwedt und den Partner aus Riga die Freundin angeschleppt./Hat der Partner die Freundin angeschleppt?/0/
+filler/157/1/Der Student hinterl��t einen schlechten Eindruck, weil er zu sp�t zur Vorlesung kommt./Kommt der Dozent zu sp�t zur Vorlesung?/0/
+gisbert/123/1/Vielleicht hat die Moderatorin aus Bremen und den Musikproduzenten aus Budapest die Musikerin eingeladen./Hat die Moderatorin der Musikproduzent eingeladen?/0/
+filler/155/1/Dem Touristen reicht das Urlaubsgeld, weil er sparsam ist./Hat der Tourist genug Geld?/1/
+gisbert/086/1/Vielleicht haben die Gro�mutter aus L�bben und der Gro�vater aus L�bbenau die Enkelt�chter entt�uscht./Haben die Gro�mutter die Enkelt�chter entt�uscht?/0/
+filler/154/1/Dem J�ger fehlt sein Gewehr, weil er es im Auto vergessen hat./Hat der J�ger etwas vergessen?/1/
+filler/162/1/Seit dem Unfall benutzt das Opfer Kr�cken./Wurden die Kr�cken schon vor dem Unfall benutzt?/0/
+gug/043/1/Der Anwohner, den der Wanderer, den der Pf�rtner suchte, verarztete den Verletzten./Hat der Anwohner den Verletzten verarztet?/1/
+filler/134/1/Der Schlosser knackt m�helos das Vorh�ngeschloss./Wird das Vorh�ngeschloss geknackt?/1/
+gisbert/097/1/Vielleicht haben die Hundebesitzerin aus Wilmersdorf und den Arbeitnehmer aus Altona die Amtsdirektorinnen bel�stigt./Hat der Arbeitnehmer die Amtsdirektorinnen bel�stigt?/0/
+filler/158/1/Mit der Gabel isst der Skateboardfahrer die Pommes Frites./Wird mit den Fingern gegessen?/0/
+gisbert/049/1/Vielleicht haben die Richterin aus Hamburg und den Spion aus Marburg die Beamtinnen verurteilt./Haben die Richterin die Beamtinnen verurteilt?/1/

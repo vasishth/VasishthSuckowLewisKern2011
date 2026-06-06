@@ -1,0 +1,207 @@
+# gug 1 a
+The carpenter, who the craftsman, who the peasant carried, hurt, supervised the apprentice.
+? Did the peasant carry the craftsman? Y
+# gug 1 b
+The carpenter, who the pillar, who the peasant carried, hurt, supervised the apprentice.
+? Did the pillar hurt the carpenter? Y
+# gug 1 c
+The carpenter, who the craftsman, who the peasant carried, supervised the apprentice.
+? Did the carpenter supervise the apprentice? Y
+# gug 1 d
+The carpenter, who the pillar, who the peasant carried, supervised the apprentice.
+? Did the peasant carry the pillar? Y
+
+# gug 2 a
+The mother, who the daughter, who the sister found, frightened, greeted the grandmother.
+? Did the sister find the daughter? Y
+# gug 2 b
+The mother, who the gun, who the sister found, frightened, greeted the grandmother.
+? Did the gun frighten the mother? Y
+# gug 2 c
+The mother, who the daughter, who the sister found, greeted the grandmother.
+? Did the mother greet the grandmother. ? Y
+# gug 2 d
+The mother, who the gun, who the sister found, greeted the grandmother.
+? Did the sister find the gun? Y
+
+# gug 3 a
+The worker, who the tenant, who the foreman looked_for, injured, questioned the shepherd.
+? Did the foreman look for the tenant? Y
+# gug 3 b
+The worker, who the bucket, who the foreman looked_for, injured, questioned the shepherd.
+? Did the bucket injure the worker? Y
+# gug 3 c
+The worker, who the tenant, who the foreman looked_for, questioned the shepherd.
+? Did the worker question the shepherd. ? Y
+# gug 3 d
+The worker, who the bucket, who the foreman looked_for, questioned the shepherd.
+? Did the foreman look for the bucket? Y
+
+# gug 4 a
+The trader, who the businessman, who the professor hired, confused, annoyed the investor.
+? Did the professor hire the businessman? Y
+# gug 4 b
+The trader, who the computer, who the professor hired, confused, annoyed the investor.
+? Did the computer confuse the trader? Y
+# gug 4 c
+The trader, who the businessman, who the professor hired, annoyed the investor.
+? Did the trader annoy the investor? Y
+# gug 4 d
+The trader, who the computer, who the professor hired, annoyed the investor.
+? Did the professor hire the computer? Y
+
+# gug 5 a
+The painter, who the musician, who the father missed, sheltered, cooked_for the artist.
+? Did the father miss the musician? Y
+# gug 5 b
+The painter, who the hut, who the father missed, sheltered, cooked_for the artist.
+? Did the hut shelter the painter? Y
+# gug 5 c
+The painter, who the musician, who the father missed, cooked_for the artist.
+? Did the painter cook for the artist? Y
+# gug 5 d
+The painter, who the hut, who the father missed, cooked_for the artist.
+? Did the father miss the hut? Y
+
+# gug 6 a
+The saxophonist, who the trumpeter, who the conductor brought_along, distracted, thanked the violinist.
+? Did the conductor bring along the trumpeter? Y
+# gug 6 b
+The saxophonist, who the baton, who the conductor brought_along, distracted, thanked the violinist.
+? Did the baton distract the saxophonist? Y
+# gug 6 c
+The saxophonist, who the trumpeter, who the conductor brought_along, thanked the violinist.
+? Did the saxophonist thank the violinist? Y
+# gug 6 d
+The saxophonist, who the baton, who the conductor brought_along, thanked the violinist.
+? Did the conductor bring along the baton? Y
+
+# gug 7 a
+The pharmacist, who the optician, who the stranger saw, troubled, questioned the customer.
+? Did the stranger see the optician? Y
+# gug 7 b
+The pharmacist, who the button, who the stranger saw, troubled, questioned the customer.
+? Did the button trouble the pharmacist? Y
+# gug 7 c
+The pharmacist, who the optician, who the stranger saw, questioned the customer.
+? Did the pharmacist question the customer? Y
+# gug 7 d
+The pharmacist, who the button, who the stranger saw, questioned the customer.
+? Did the stranger see the button? Y
+
+# gug 8 a
+The cleaner, who the janitor, who the doctor recognized, hurt, surprised the patient.
+? Did the doctor recognize the janitor? Y
+# gug 8 b
+The cleaner, who the ball, who the doctor recognized, hurt, surprised the patient.
+? Did the ball hurt the cleaner? Y
+# gug 8 c
+The cleaner, who the janitor, who the doctor recognized, surprised the patient.
+? Did the cleaner surprise the patient? Y
+# gug 8 d
+The cleaner, who the ball, who the doctor recognized, surprised the patient.
+? Did the doctor recognize the ball? Y
+
+# gug 9 a
+The dancer, who the singer, who the bystander admired, hurt, tipped the doorman.
+? Did the singer admire the bystander? N
+# gug 9 b
+The dancer, who the shoe, who the bystander admired, hurt, tipped the doorman.
+? Did the shoe pinch the bystander? N
+# gug 9 c
+The dancer, who the singer, who the bystander admired, tipped the doorman.
+? Did the singer tip the doorman? N
+# gug 9 d
+The dancer, who the shoe, who the bystander admired, tipped the doorman.
+? Did the bystander admire the dancer? N
+
+# gug 10 a
+The artist, who the sportsman, who the guard shouted_at, annoyed, instructed the newscaster.
+? Did the sportsman shout at the guard? N
+# gug 10 b
+The artist, who the computer, who the guard shouted_at, annoyed, instructed the newscaster.
+? Did the computer annoy the guard? N
+# gug 10 c
+The artist, who the sportsman, who the guard shouted_at, instructed the newscaster.
+? Did the sportsman instruct the newscaster? N
+# gug 10 d
+The artist, who the computer, who the guard shouted_at instructed the newscaster.
+? Did the guard shout at the artist? N
+
+# gug 11 a
+The clerk, who the bureaucrat, who the visitor forgot_about, helped, annoyed the neighbor.
+? Did the bureaucrat forget about the visitor? N
+# gug 11 b
+The clerk, who the walking_stick, who the visitor forgot_about, helped, annoyed the neighbor.
+? Did the walking stick help the visitor? N
+# gug 11 c
+The clerk, who the bureaucrat, who the visitor forgot_about, annoyed the neighbor.
+? Did the bureaucrat annoy the neighbor? N
+# gug 11 d
+The clerk, who the walking_stick, who the visitor forgot_about, annoyed the neighbor.
+? Did the visitor forget about the clerk? N
+
+# gug 12 a
+The son, who the father, who the teacher saw, disturbed, visited the grandfather.
+? Did the father see the teacher? N
+# gug 12 b
+The son, who the loudspeaker, who the teacher saw, disturbed, visited the grandfather.
+? Did the loudspeaker disturb the teacher? N
+# gug 12 c
+The son, who the father, who the teacher saw, visited the grandfather.
+? Did the father visit the grandfather? N
+# gug 12 d
+The son, who the loudspeaker, who the teacher saw, visited the grandfather.
+? Did the teacher see the son? N
+
+# gug 13 a
+The conductor, who the choirmaster, who the worker ignored, hit, berated the musician.
+? Did the choirmaster ignore the worker? N
+# gug 13 b
+The conductor, who the sponge, who the worker ignored, hit, berated the musician.
+? Did the sponge hit the worker? N
+# gug 13 c
+The conductor, who the choirmaster, who the worker ignored, berated the musician.
+? Did the choirmaster berate the musician? N
+# gug 13 d
+The conductor, who the sponge, who the worker ignored, berated the musician.
+? Did the worker ignore the conductor? N
+
+# gug 14 a
+The defence, who the prosecutor, who the spy looked_at, surprised, convinced the judge.
+? Did the prosecutor look at the spy? N
+# gug 14 b
+The defence, who the knife, who the spy looked_at, surprised, convinced the judge.
+? Did the knife surprise the spy? N
+# gug 14 c
+The defence, who the prosecutor, who the spy looked_at, convinced the judge.
+? Did the prosecutor convince the judge? N
+# gug 14 d
+The defence, who the knife, who the spy looked_at, convinced the judge.
+? Did the spy look at the defence? N
+
+# gug 15 a
+The cousin, who the brother, who the peasant described, pleased, hated the uncle.
+? Did the brother describe the peasant? N
+# gug 15 b
+The cousin, who the diamond, who the peasant described, pleased, hated the uncle.
+? Did the diamond please the peasant? N
+# gug 15 c
+The cousin, who the brother, who the peasant described, hated the uncle.
+? Did the brother hate the uncle? N
+# gug 15 d
+The cousin, who the diamond, who the peasant described, hated the uncle.
+? Did the peasant describe the cousin? N
+
+# gug 16 a
+The painter, who the musician, who the friend liked, disturbed, admired the poet.
+? Did the musician like the friend? N
+# gug 16 b
+The painter, who the film, who the friend liked, disturbed, admired the poet.
+? Did the film disturb the friend? N
+# gug 16 c
+The painter, who the musician, who the friend liked, admired the poet.
+? Did the musician admire the poet? N
+# gug 16 d
+The painter, who the film, who the friend liked, admired the poet.
+? Did the friend like the painter? N

@@ -1,0 +1,104 @@
+
+# filler 1 -
+The student quickly finished his homework assignments.
+? Have the homework assignments been finished by the student? Y
+
+# filler 2 -
+The defender is constantly scolding the keeper.
+? Has anybody been scolded? Y
+
+# filler 3 -
+The private tutor explained the assignment carefully.
+? Was the private tutor able to explain the assignment carefully? Y
+
+# filler 4 -
+The locksmith can crack the safe easily.
+? Is it easy for the locksmith to crack the safe? Y
+
+# filler 5 -
+The milkman punctually delivers the milk at the door every day.
+? Is the milkman on time every day? Y
+
+# filler 6 -
+The citizens of France eat oysters.
+? Do the French eat oysters? Y
+
+# filler 7 -
+During the season, the choir holds rehearsals in the church regularly.
+? Does the choir rehearse regularly during the season? Y
+
+# filler 8 -
+After the argument, the husband ignored his wife.
+? Was the wife being ignored by her husband after the argument? Y
+
+# filler 9 -
+Dinosaurs ate other reptiles during the stone age.
+? Were the dinosaurs carnivores? Y
+
+# filler 10 -
+The divorcee has come to love her life ever since she got divorced.
+? Does the divorcee feel positively towards her life? Y
+
+# filler 11 -
+The intern comforted the patient because he was in great pain.
+? Did someone comfort the patient? Y
+
+# filler 12 -
+The trainee knew that the task which the director had set for him was impossible to finish within a week.
+? Did the director set a task for the trainee? Y
+
+# filler 13 -
+The company was sure that its new product, which its researchers had developed, would soon be sold out.
+? Was the company optimistic about the new product? Y
+
+# filler 14 -
+The passer-by threw the cardboard box into the trash-can with great force.
+? Did the passer-by put the cardboard box into his bag? N
+
+# filler 15 -
+The beggar is often scrounging for cigarettes.
+? Does the beggar always buy cigarettes? N
+
+# filler 16 -
+The librarian put the book onto the shelf.
+? Did the clerk put the book on the shelf? N
+
+# filler 17 -
+The sportsman goes jogging in the park regularly.
+? Does the sportsman jog in the forest? N
+
+# filler 18 -
+The roommate takes out the garbage every week.
+? Is the garbage taken out every day? N
+
+# filler 19 -
+The showman travels to different cities every month.
+? Does the showman never travel? N
+
+# filler 20 -
+The teacher doubted that the test that had taken him a long time to design would be easy to answer.
+? Did the teacher design the test quickly? N
+
+# filler 21 -
+The salesman feared that the printer which the customer bought was damaged.
+? Was the salesman sure that the printer would work? N
+
+# filler 22 -
+During the party everybody was dancing to rock music.
+? Were all the people just sitting around chatting at the party? N
+
+# filler 23 -
+The photographer processed the film on time.
+? Did the librarian process the film? N
+
+# filler 24 -
+The producer shoots a new movie every year.
+? Does the director produce a new movie every year? N
+
+# filler 25 -
+Yesterday the swimmer saw only a turtle at the beach.
+? Did the swimmer see a whale at the beach yesterday? N
+
+# filler 26 -
+The office-worker worked through the stack of files on his desk quickly.
+? Did the office-worker ignore the stack of files on his desk? N
